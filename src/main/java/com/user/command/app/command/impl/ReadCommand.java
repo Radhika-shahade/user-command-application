@@ -5,7 +5,6 @@ import com.user.command.app.command.validator.CommandValidator;
 import com.user.command.app.model.Result;
 import com.user.command.app.model.User;
 import com.user.command.app.store.InMemoryStore;
-import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +63,7 @@ public class ReadCommand implements Command, CommandValidator {
             }
 
         }
+
         return Result.builder().users(null).message("unable to find user with this name").build();
     }
 

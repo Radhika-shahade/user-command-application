@@ -3,55 +3,87 @@ package com.user.command.app.command.impl;
 import com.user.command.app.command.Command;
 import com.user.command.app.command.validator.CommandValidator;
 import com.user.command.app.model.Result;
+import com.user.command.app.model.User;
+import com.user.command.app.store.InMemoryStore;
 
 public class UpdateCommand implements CommandValidator, Command {
-    //update -id userId -n radhika -p 858476 -a nagpur -e rds@gmail.com
     @Override
-    public Result execute(String[] attributes) throws Exception {
-        if (validate(attributes)) {
-
+    public Result execute(String[] attributes) {
+        // identify which field has to update of that user
+        String id = attributes[2];
+        String field = attributes[3];
+        String newValue = attributes[4];
+        User user = getUser(id);
+        switch (field){
+            case "phone":
+                updatePhone(user, Long.valueOf(newValue));
+                break;
+            case "emailId":
+                updateEmail(user, newValue);
+                break;
+            case "address":
+                updateAddress(user, newValue);
+                break;
+            case "name":
+                updateName(user, newValue);
         }
+        return Result.builder().message("Updated successfully").build();
     }
 
     @Override
-    public boolean validate(String[] attributes) throws Exception {
-//            if (attributes.length != 9) {
-//                throw new Exception("Please provide name : " +
-//                        "For ex: \nupdate --id \"userId\" ");
-//            }
+    public boolean validate(String[] attributes) throws Exception{
+
+        // Getting Requirement
+        // Understand use cases (scenarios) Positive and Negative
+
+        if (attributes.length != 5) {
+            throw new Exception("Please provide required attributes to update user ");
+        }
+
         if (!attributes[0].equals("update")) {
-            throw new Exception("Action is not update!");
+            throw new Exception("Action must be update!");
         }
-        if (!attributes[1].equals("--id")) {
-            throw new Exception("write correct command and name");
+
+        if(!attributes[1].equals("-i")){
+            throw new Exception("Invalid arguments, please provide -i ");
         }
-       return true;
+
+        String id = attributes[2];
+        String field = attributes[3];
+        String newValue = attributes[4];
+
+        // does that ID exists in the collection
+        User user = getUser(id);
+        if(user == null){
+            throw new Exception("User with id " + id + " doesn't exists!");
+        }
+
+        return true;
     }
 
-    private boolean validAttributes(String[] attributes,String attrName) {
-        boolean isValid = true;
-        int i = 3;
-        while (isValid && i < attributes.length) {
-            String attributeName = attributes[i];
-            isValid = validAttributes(attributeName);
-            i = i + 2;
-            return isValid;
-        }
-        return isValid;
-private boolean is
-        switch (attrName) {
-            case "-n":
-                return true;
-            case "-p":
-                return true;
-            case "-a":
-                return true;
-            case "-e":
-                return true;
-            default:
-                return false;
-        }
-
-
+    private void updateAddress(User user, String newValue) {
+        user.setAddress(newValue);
     }
+
+    private void updateEmail(User user, String newValue) {
+        user.setEmailId(newValue);
+    }
+
+    private void updatePhone(User user, long newValue) {
+        user.setPhone(newValue);
+    }
+
+    private User getUser(String id) {
+        for (User user : InMemoryStore.users) {
+            if (user.getId().equals(id)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    private void updateName(User user, String newValue) {
+        user.setName(newValue);
+    }
+
 }
